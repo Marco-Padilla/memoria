@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Juego de Memoria</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container1">
+      <div class="game-board" id="gameBoard"></div>
+      <div id="gameInfo">
+        <div id="timer">Tiempo: <span id="time">60</span>s</div>
+      </div>
+      <div id="gameInfo">
+        <div id="moves">Movimientos: <span id="moveCount">0</span></div>
+        <button id="startStopBtn">Iniciar</button>
+        <button id="resetBtn">Reiniciar</button>
+      </div>
+    </div>
+    <div class="container2">
+      <img id="logo1" src="img/logo.png" style="display: block" alt="logo" />
+      <img id="logo2" src="img/gana.png" style="display: none" alt="logo" />
+      <img id="logo3" src="img/perder.png" style="display: none" alt="logo" />
+    </div>
+
+    <!-- Sonidos -->
+    <audio id="flip-sound" src="music/flip.wav"></audio>
+    <audio id="match-sound" src="music/match.wav"></audio>
+    <audio id="win-sound" src="music/win.wav"></audio>
+    <audio id="loose-sound" src="music/loose.wav"></audio>
+
+    <script src="script.js"></script>
+  </body>
+</html>
