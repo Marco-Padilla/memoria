@@ -7,6 +7,7 @@ const winSound = document.getElementById("win-sound");
 const looseSound = document.getElementById("loose-sound");
 const startStopBtn = document.getElementById("startStopBtn");
 const resetBtn = document.getElementById("resetBtn");
+const container2 = document.querySelector(".container2"); // Referencia al contenedor para imágenes de pares
 
 const cards = [
   "img/A2.png",
@@ -23,15 +24,24 @@ const cards = [
   "img/F2.png",
 ];
 
-// Números únicos del 1 al 12 para la parte frontal (visible) de cada carta
-const visibleNumbers = Array.from({ length: 12 }, (_, i) => i + 1);
+// Imágenes a mostrar por cada par encontrado
+const pairImages = [
+  "img/pair1.png",
+  "img/pair2.png",
+  "img/pair3.png",
+  "img/pair4.png",
+  "img/pair5.png",
+  "img/pair6.png",
+];
 
+// Variables globales
 let firstCard, secondCard;
 let lockBoard = false;
 let moves = 0;
 let timeLeft = 60;
 let countdown;
 let isGameStarted = false;
+let pairsFound = 0;
 
 // Baraja las cartas
 function shuffle(array) {
@@ -40,18 +50,23 @@ function shuffle(array) {
 
 // Crea las cartas en el tablero
 function createBoard() {
+  const visibleNumbers = Array.from({ length: 12 }, (_, i) => i + 1); // Números del 1 al 12
   shuffle(cards);
-  shuffle(visibleNumbers); // Mezclar los números visibles para que el orden en la parte frontal sea aleatorio
-  board.innerHTML = ""; // Limpiar tablero al crear uno nuevo
+  shuffle(visibleNumbers); // Mezclar los números visibles
+  board.innerHTML = ""; // Limpiar el tablero
+
   cards.forEach((imagePath, index) => {
     const card = document.createElement("div");
     card.classList.add("card");
+
+    // Asignar números visibles en el lado oculto de la carta
     card.innerHTML = `
       <div class="card-inner">
-          <div class="card-front">${visibleNumbers[index % 12]}</div>
-          <div class="card-back"><img src="${imagePath}" alt="Card image"></div>
+        <div class="card-front">${visibleNumbers[index]}</div> 
+        <div class="card-back"><img src="${imagePath}" alt="Card image"></div>
       </div>
     `;
+
     card.dataset.symbol = imagePath;
     card.addEventListener("click", flipCard);
     board.appendChild(card);
@@ -105,11 +120,25 @@ function checkForMatch() {
   isMatch ? disableCards() : unflipCards();
 }
 
-// Desactiva las cartas emparejadas
+// Desactiva las cartas emparejadas y cambia la imagen de fondo
 function disableCards() {
   matchSound.play();
   firstCard.classList.add("matched");
   secondCard.classList.add("matched");
+
+  // Cambiar la imagen de fondo del contenedor
+  if (pairsFound < pairImages.length) {
+    const allImages = container2.querySelectorAll("img");
+    allImages.forEach((img) => (img.style.display = "none")); // Ocultar todas las imágenes
+    const imageToShow = container2.querySelector(
+      `img[src="${pairImages[pairsFound]}"]`
+    );
+    if (imageToShow) {
+      imageToShow.style.display = "block"; // Mostrar la imagen correspondiente al par
+    }
+  }
+
+  pairsFound++; // Incrementar el contador de pares encontrados
   resetBoard();
   checkWin();
 }
@@ -117,12 +146,9 @@ function disableCards() {
 // Desvoltea las cartas si no coinciden
 function unflipCards() {
   lockBoard = true;
-  firstCard.classList.add("shake");
-  secondCard.classList.add("shake");
-
   setTimeout(() => {
-    firstCard.classList.remove("flipped", "shake");
-    secondCard.classList.remove("flipped", "shake");
+    firstCard.classList.remove("flipped");
+    secondCard.classList.remove("flipped");
     resetBoard();
   }, 1000);
 }
@@ -140,36 +166,40 @@ function incrementMoves() {
 
 // Verifica si el jugador ha ganado
 function checkWin() {
-  const flippedCards = document.querySelectorAll(".card.matched");
-  const img1 = document.getElementById("logo1");
-  const img2 = document.getElementById("logo2");
-  if (flippedCards.length === cards.length) {
+  if (pairsFound === pairImages.length) {
     clearInterval(countdown);
     winSound.play();
-    img1.style.display = "none";
-    img2.style.display = "block";
+
+    // Ocultar otras imágenes y mostrar el logo de victoria
+    container2
+      .querySelectorAll("img")
+      .forEach((img) => (img.style.display = "none"));
+    document.getElementById("logo2").style.display = "block"; // Mostrar logo de victoria
+
+    // Mostrar la imagen del último par completado
+    const lastPairImage = document.createElement("img");
+    lastPairImage.src = pairImages[pairsFound - 1]; // Última imagen del par encontrado
+    lastPairImage.alt = `Último Pair ${pairsFound}`;
+    lastPairImage.style.display = "block"; // Asegurar visibilidad
+    lastPairImage.classList.add("pair-image");
+
+    // Agregar la imagen al contenedor
+    container2.appendChild(lastPairImage);
   }
 }
 
 // Termina el juego cuando el tiempo se acaba
 function gameOver() {
-  const img1 = document.getElementById("logo1");
-  const img3 = document.getElementById("logo3");
+  clearInterval(countdown);
   looseSound.play();
-  img1.style.display = "none";
-  img3.style.display = "block";
+  container2
+    .querySelectorAll("img")
+    .forEach((img) => (img.style.display = "none"));
+  document.getElementById("logo2").style.display = "block"; // Mostrar logo de derrota
 }
 
 // Reinicia el juego
 function resetGame() {
-  const img1 = document.getElementById("logo1");
-  const img2 = document.getElementById("logo2");
-  const img3 = document.getElementById("logo3");
-
-  img1.style.display = "block";
-  img2.style.display = "none";
-  img3.style.display = "none";
-
   clearInterval(countdown);
   isGameStarted = false;
   startStopBtn.textContent = "Iniciar";
@@ -177,6 +207,14 @@ function resetGame() {
   moveCountElement.textContent = moves;
   timeLeft = 60;
   timerElement.textContent = timeLeft;
+  pairsFound = 0;
+
+  // Reiniciar imágenes
+  container2
+    .querySelectorAll("img")
+    .forEach((img) => (img.style.display = "none"));
+  document.getElementById("logo1").style.display = "block"; // Mostrar logo inicial
+
   createBoard();
 }
 
