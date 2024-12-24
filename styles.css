@@ -161,3 +161,46 @@ button:hover {
 .shake {
   animation: shake 0.5s;
 }
+
+/* Tablets (max-width: 768px) */
+@media (max-width: 768px) {
+  .game-board {
+    grid-template-columns: repeat(3, 80px);
+    gap: 8px;
+  }
+
+  button {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  #gameInfo {
+    font-size: 14px;
+  }
+}
+
+/* Móviles (max-width: 480px) */
+@media (max-width: 480px) {
+  .game-board {
+    grid-template-columns: repeat(2, 60px);
+    gap: 6px;
+  }
+
+  button {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  #gameInfo {
+    font-size: 12px;
+  }
+
+  .container1, .container2 {
+    flex-direction: column;
+  }
+
+  img {
+    width: 80%;
+    margin: 10px auto;
+  }
+}
